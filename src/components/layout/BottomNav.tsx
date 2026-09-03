@@ -20,7 +20,6 @@ export function BottomNav() {
 
   return (
     <nav
-      className="md:hidden"
       style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
         background: 'var(--surface)',
