@@ -235,7 +235,7 @@ export function ActivityForm({ initial }: ActivityFormProps) {
             </div>
 
             {/* Date range */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="form-grid-2" style={{ gap: 12 }}>
               <div>
                 <label className="label" htmlFor="start_date">Start Date *</label>
                 <input
@@ -274,7 +274,7 @@ export function ActivityForm({ initial }: ActivityFormProps) {
 
             {/* Times */}
             {!isAllDay && (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="form-grid-2" style={{ gap: 12 }}>
                 <div>
                   <label className="label" htmlFor="start_time">Start Time</label>
                   <input id="start_time" type="time" className="input" {...register('start_time')} />

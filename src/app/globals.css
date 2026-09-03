@@ -149,6 +149,39 @@ body {
   .page-container { padding: 20px 16px 40px; }
 }
 
+/* Responsive filter bar — inputs/selects fill and stack on mobile */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.filter-bar .input,
+.filter-bar .select {
+  flex: 1 1 140px;
+  min-width: 0;
+  max-width: none;
+}
+
+@media (max-width: 480px) {
+  .filter-bar .input,
+  .filter-bar .select {
+    flex: 1 1 100%;
+  }
+}
+
+/* 2-col form grid that collapses to 1 col on mobile */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 480px) {
+  .form-grid-2 { grid-template-columns: 1fr; }
+}
+
 .page-header {
   display: flex;
   align-items: flex-start;

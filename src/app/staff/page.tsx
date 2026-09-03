@@ -94,7 +94,7 @@ export default function StaffPage() {
             fontSize: 17, fontWeight: 700, color: 'var(--text-1)', marginBottom: 18,
           }}>New Staff Member</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="form-grid-2">
               <div>
                 <label className="label" htmlFor="staff_id">Staff ID *</label>
                 <input id="staff_id" className="input" placeholder="e.g. EMP-0008" {...register('staff_id')} />
@@ -131,10 +131,9 @@ export default function StaffPage() {
       )}
 
       {/* Search */}
-      <div style={{ marginBottom: 14 }}>
+      <div className="filter-bar">
         <input
           className="input"
-          style={{ maxWidth: 300 }}
           placeholder="Search staff…"
           value={search}
           onChange={e => setSearch(e.target.value)}

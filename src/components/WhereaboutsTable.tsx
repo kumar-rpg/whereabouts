@@ -77,17 +77,15 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
     <div>
       {/* Filters */}
       {!staffId && (
-        <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div className="filter-bar">
           <input
             className="input"
-            style={{ maxWidth: 240 }}
             placeholder="Search name, ID, location…"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
           <select
             className="select"
-            style={{ maxWidth: 180 }}
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value as ActivityType | '')}
           >
@@ -97,7 +95,6 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
           </select>
           <select
             className="select"
-            style={{ maxWidth: 150 }}
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as typeof statusFilter)}
           >
