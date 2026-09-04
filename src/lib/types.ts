@@ -13,6 +13,7 @@ export interface Staff {
   staff_name: string
   department: string | null
   email: string | null
+  access_id: string | null
   is_active: boolean
   created_at: string
 }

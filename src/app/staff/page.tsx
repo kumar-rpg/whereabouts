@@ -23,6 +23,7 @@ const staffSchema = z.object({
   staff_name: z.string().min(2, 'Name is required'),
   department: z.string().optional(),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
+  access_id: z.string().regex(/^\d{6}$/, 'Must be exactly 6 digits').optional().or(z.literal('')),
 })
 
 type StaffFormValues = z.infer<typeof staffSchema>
@@ -57,6 +58,7 @@ export default function StaffPage() {
       staff_name: values.staff_name,
       department: values.department || null,
       email: values.email || null,
+      access_id: values.access_id || null,
     })
     if (error) {
       setSubmitError(error.message)
@@ -114,6 +116,11 @@ export default function StaffPage() {
                 <input id="email" type="email" className="input" placeholder="e.g. mei@company.com" {...register('email')} />
                 {errors.email && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.email.message}</p>}
               </div>
+              <div>
+                <label className="label" htmlFor="access_id">Access ID</label>
+                <input id="access_id" className="input" placeholder="6-digit PIN e.g. 012345" maxLength={6} {...register('access_id')} style={{ fontFamily: 'var(--font-jetbrains, monospace)', letterSpacing: '0.15em' }} />
+                {errors.access_id && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.access_id.message}</p>}
+              </div>
             </div>
             {submitError && (
               <p style={{ fontSize: 13, color: 'var(--danger)', marginTop: 12 }}>{submitError}</p>
@@ -157,6 +164,7 @@ export default function StaffPage() {
                 <tr>
                   <th>Staff ID</th>
                   <th>Name</th>
+                  <th>Access ID</th>
                   <th>Department</th>
                   <th>Email</th>
                   <th></th>
@@ -175,6 +183,11 @@ export default function StaffPage() {
                       </span>
                     </td>
                     <td style={{ fontWeight: 500, color: 'var(--text-1)' }}>{s.staff_name}</td>
+                    <td>
+                      {s.access_id
+                        ? <span style={{ fontFamily: 'var(--font-jetbrains, monospace)', fontSize: 13, letterSpacing: '0.12em', color: 'var(--text-2)' }}>{s.access_id}</span>
+                        : <span style={{ color: 'var(--text-3)' }}>—</span>}
+                    </td>
                     <td>{s.department ?? <span style={{ color: 'var(--text-3)' }}>—</span>}</td>
                     <td style={{ fontSize: 13 }}>{s.email ?? <span style={{ color: 'var(--text-3)' }}>—</span>}</td>
                     <td>

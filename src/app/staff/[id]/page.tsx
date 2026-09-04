@@ -91,10 +91,20 @@ export default function StaffProfilePage({ params }: PageProps<'/staff/[id]'>) {
                 }}>In Office</span>
               )}
             </div>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
               <span style={{ fontFamily: 'var(--font-jetbrains, monospace)', fontSize: 13, color: 'var(--accent-text)' }}>
                 {staff.staff_id}
               </span>
+              {staff.access_id && (
+                <span style={{
+                  fontFamily: 'var(--font-jetbrains, monospace)', fontSize: 12,
+                  letterSpacing: '0.15em', color: 'var(--text-3)',
+                  background: 'var(--surface-alt)', border: '1px solid var(--border)',
+                  padding: '2px 8px', borderRadius: 6,
+                }}>
+                  {staff.access_id}
+                </span>
+              )}
               {staff.department && (
                 <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{staff.department}</span>
               )}
