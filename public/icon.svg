@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0B1E30"/>
+  <rect x="20" y="20" width="472" height="472" rx="80" fill="#0B9868"/>
+  <!-- Location pin shape -->
+  <path d="M256 120 C208 120 168 160 168 208 C168 270 256 380 256 380 C256 380 344 270 344 208 C344 160 304 120 256 120Z" fill="#0B1E30" opacity="0.15"/>
+  <path d="M256 112 C205 112 160 157 160 208 C160 275 256 392 256 392 C256 392 352 275 352 208 C352 157 307 112 256 112Z" fill="white"/>
+  <circle cx="256" cy="204" r="44" fill="#0B9868"/>
+</svg>

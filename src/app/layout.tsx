@@ -26,6 +26,13 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: { default: 'Staff Whereabouts', template: '%s · Staff Whereabouts' },
   description: 'Track where your team is — vendor visits, training, customer meetings, and events.',
+  themeColor: '#0B9868',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Whereabouts',
+  },
+  formatDetection: { telephone: false },
 }
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
