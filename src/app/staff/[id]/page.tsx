@@ -105,6 +105,14 @@ export default function StaffProfilePage({ params }: PageProps<'/staff/[id]'>) {
                   {staff.access_id}
                 </span>
               )}
+              <span style={{
+                fontSize: 11.5, fontWeight: 600, padding: '2px 9px',
+                borderRadius: 99,
+                background: staff.role === 'Admin' ? 'var(--accent-bg)' : 'var(--surface-alt)',
+                color: staff.role === 'Admin' ? 'var(--accent-text)' : 'var(--text-2)',
+              }}>
+                {staff.role}
+              </span>
               {staff.department && (
                 <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{staff.department}</span>
               )}

@@ -24,6 +24,7 @@ const staffSchema = z.object({
   department: z.string().optional(),
   email: z.string().email('Invalid email').optional().or(z.literal('')),
   access_id: z.string().regex(/^\d{6}$/, 'Must be exactly 6 digits').optional().or(z.literal('')),
+  role: z.enum(['Admin', 'User']),
 })
 
 type StaffFormValues = z.infer<typeof staffSchema>
@@ -37,6 +38,7 @@ export default function StaffPage() {
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<StaffFormValues>({
     resolver: zodResolver(staffSchema),
+    defaultValues: { role: 'User' },
   })
 
   const filtered = useMemo(() => {
@@ -59,6 +61,7 @@ export default function StaffPage() {
       department: values.department || null,
       email: values.email || null,
       access_id: values.access_id || null,
+      role: values.role,
     })
     if (error) {
       setSubmitError(error.message)
@@ -121,6 +124,13 @@ export default function StaffPage() {
                 <input id="access_id" className="input" placeholder="6-digit PIN e.g. 012345" maxLength={6} {...register('access_id')} style={{ fontFamily: 'var(--font-jetbrains, monospace)', letterSpacing: '0.15em' }} />
                 {errors.access_id && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.access_id.message}</p>}
               </div>
+              <div>
+                <label className="label" htmlFor="role">Role *</label>
+                <select id="role" className="select" {...register('role')}>
+                  <option value="User">User</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
             </div>
             {submitError && (
               <p style={{ fontSize: 13, color: 'var(--danger)', marginTop: 12 }}>{submitError}</p>
@@ -164,6 +174,7 @@ export default function StaffPage() {
                 <tr>
                   <th>Staff ID</th>
                   <th>Name</th>
+                  <th>Role</th>
                   <th>Access ID</th>
                   <th>Department</th>
                   <th>Email</th>
@@ -183,6 +194,16 @@ export default function StaffPage() {
                       </span>
                     </td>
                     <td style={{ fontWeight: 500, color: 'var(--text-1)' }}>{s.staff_name}</td>
+                    <td>
+                      <span style={{
+                        fontSize: 11.5, fontWeight: 600, padding: '3px 9px',
+                        borderRadius: 99,
+                        background: s.role === 'Admin' ? 'var(--accent-bg)' : 'var(--surface-alt)',
+                        color: s.role === 'Admin' ? 'var(--accent-text)' : 'var(--text-2)',
+                      }}>
+                        {s.role}
+                      </span>
+                    </td>
                     <td>
                       {s.access_id
                         ? <span style={{ fontFamily: 'var(--font-jetbrains, monospace)', fontSize: 13, letterSpacing: '0.12em', color: 'var(--text-2)' }}>{s.access_id}</span>

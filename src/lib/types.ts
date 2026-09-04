@@ -7,6 +7,8 @@ export type ActivityType =
 
 export type WhereaboutStatus = 'upcoming' | 'ongoing' | 'completed'
 
+export type StaffRole = 'Admin' | 'User'
+
 export interface Staff {
   id: string
   staff_id: string
@@ -14,6 +16,7 @@ export interface Staff {
   department: string | null
   email: string | null
   access_id: string | null
+  role: StaffRole
   is_active: boolean
   created_at: string
 }
