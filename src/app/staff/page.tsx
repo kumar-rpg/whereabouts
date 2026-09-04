@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
 import { useForm } from 'react-hook-form'
@@ -29,12 +29,170 @@ const staffSchema = z.object({
 
 type StaffFormValues = z.infer<typeof staffSchema>
 
+// ── Edit Modal ────────────────────────────────────────────────────
+function EditModal({ staff, onClose, onSaved }: {
+  staff: Staff
+  onClose: () => void
+  onSaved: () => void
+}) {
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+
+  const { register, handleSubmit, formState: { errors } } = useForm<StaffFormValues>({
+    resolver: zodResolver(staffSchema),
+    defaultValues: {
+      staff_id: staff.staff_id,
+      staff_name: staff.staff_name,
+      department: staff.department ?? '',
+      email: staff.email ?? '',
+      access_id: staff.access_id ?? '',
+      role: staff.role,
+    },
+  })
+
+  // Close on Escape
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  async function onSubmit(values: StaffFormValues) {
+    setSubmitting(true)
+    setSubmitError('')
+    const { error } = await db.from('staff').update({
+      staff_name: values.staff_name,
+      department: values.department || null,
+      email: values.email || null,
+      access_id: values.access_id || null,
+      role: values.role,
+    }).eq('id', staff.id)
+
+    if (error) {
+      setSubmitError(error.message)
+      setSubmitting(false)
+      return
+    }
+    onSaved()
+    onClose()
+  }
+
+  return (
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 100,
+        background: 'rgba(0,0,0,0.6)',
+        display: 'flex', alignItems: 'flex-end',
+        backdropFilter: 'blur(2px)',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: '100%',
+          background: 'var(--surface)',
+          borderRadius: '20px 20px 0 0',
+          padding: '24px 20px 36px',
+          maxHeight: '90dvh',
+          overflowY: 'auto',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Handle bar */}
+        <div style={{ width: 40, height: 4, borderRadius: 99, background: 'var(--border)', margin: '0 auto 20px' }} />
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+          <h2 style={{
+            fontFamily: 'var(--font-barlow, sans-serif)',
+            fontSize: 18, fontWeight: 700, color: 'var(--text-1)', margin: 0,
+          }}>
+            Edit Staff Member
+          </h2>
+          <button onClick={onClose} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--text-3)', padding: 4, borderRadius: 6,
+            display: 'flex', alignItems: 'center',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Staff ID — read-only */}
+        <div style={{ marginBottom: 16 }}>
+          <label className="label">Staff ID</label>
+          <div style={{
+            padding: '9px 12px', borderRadius: 8,
+            background: 'var(--surface-alt)', border: '1px solid var(--border)',
+            fontFamily: 'var(--font-jetbrains, monospace)',
+            fontSize: 13, color: 'var(--text-3)',
+          }}>
+            {staff.staff_id}
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-grid-2">
+            <div>
+              <label className="label" htmlFor="e_staff_name">Full Name *</label>
+              <input id="e_staff_name" className="input" {...register('staff_name')} />
+              {errors.staff_name && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.staff_name.message}</p>}
+            </div>
+            <div>
+              <label className="label" htmlFor="e_role">Role *</label>
+              <select id="e_role" className="select" {...register('role')}>
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+            <div>
+              <label className="label" htmlFor="e_department">Department</label>
+              <input id="e_department" className="input" placeholder="e.g. Engineering" {...register('department')} />
+            </div>
+            <div>
+              <label className="label" htmlFor="e_email">Email</label>
+              <input id="e_email" type="email" className="input" {...register('email')} />
+              {errors.email && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.email.message}</p>}
+            </div>
+            <div>
+              <label className="label" htmlFor="e_access_id">Access ID</label>
+              <input
+                id="e_access_id" className="input"
+                placeholder="6-digit PIN" maxLength={6}
+                {...register('access_id')}
+                style={{ fontFamily: 'var(--font-jetbrains, monospace)', letterSpacing: '0.15em' }}
+              />
+              {errors.access_id && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.access_id.message}</p>}
+            </div>
+          </div>
+
+          {submitError && (
+            <p style={{ fontSize: 13, color: 'var(--danger)', marginTop: 12 }}>{submitError}</p>
+          )}
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+            <button type="submit" className="btn btn-primary" disabled={submitting} style={{ flex: 1, justifyContent: 'center' }}>
+              {submitting ? 'Saving…' : 'Save Changes'}
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ── Main Page ─────────────────────────────────────────────────────
 export default function StaffPage() {
   const { data, isLoading, mutate } = useSWR('staff-list', fetchStaff)
   const [search, setSearch] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
+  const [editing, setEditing] = useState<Staff | null>(null)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<StaffFormValues>({
     resolver: zodResolver(staffSchema),
@@ -212,12 +370,28 @@ export default function StaffPage() {
                     <td>{s.department ?? <span style={{ color: 'var(--text-3)' }}>—</span>}</td>
                     <td style={{ fontSize: 13 }}>{s.email ?? <span style={{ color: 'var(--text-3)' }}>—</span>}</td>
                     <td>
-                      <Link
-                        href={`/staff/${s.staff_id}`}
-                        style={{ fontSize: 13, color: 'var(--accent-text)', textDecoration: 'none', fontWeight: 500 }}
-                      >
-                        Profile →
-                      </Link>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <button
+                          onClick={() => setEditing(s)}
+                          title="Edit"
+                          style={{
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            color: 'var(--text-3)', padding: 4, borderRadius: 6,
+                            display: 'flex', alignItems: 'center',
+                          }}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <Link
+                          href={`/staff/${s.staff_id}`}
+                          style={{ fontSize: 13, color: 'var(--accent-text)', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}
+                        >
+                          Profile →
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -226,6 +400,15 @@ export default function StaffPage() {
           </div>
         )}
       </div>
+
+      {/* Edit modal */}
+      {editing && (
+        <EditModal
+          staff={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => mutate()}
+        />
+      )}
     </div>
   )
 }
