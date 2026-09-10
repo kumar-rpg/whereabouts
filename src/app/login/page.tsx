@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { db } from '@/lib/supabase'
 import { getSession, setSession } from '@/lib/auth'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/'
   const [digits, setDigits] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
   const [checking, setChecking] = useState(false)
@@ -14,7 +16,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (getSession()) {
-      router.replace('/')
+      router.replace(redirectTo)
     } else {
       setTimeout(() => refs.current[0]?.focus(), 100)
     }
@@ -33,7 +35,7 @@ export default function LoginPage() {
 
     if (data) {
       setSession({ staff_id: data.staff_id, staff_name: data.staff_name, access_id: data.access_id })
-      router.replace('/')
+      router.replace(redirectTo)
     } else {
       setError('Incorrect PIN. Please try again.')
       setDigits(['', '', '', '', '', ''])

@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
     const s = getSession()
     if (!s) {
-      router.replace('/login')
+      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`)
     } else {
       setSession(s)
       setReady(true)
