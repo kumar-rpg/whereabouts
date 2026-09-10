@@ -6,7 +6,7 @@ import useSWR from 'swr'
 import { db } from '@/lib/supabase'
 import { ActivityBadge } from './ui/ActivityBadge'
 import { StatusPill } from './ui/StatusPill'
-import { computeStatus, formatDateRange, getDayCount, ACTIVITY_LABELS } from '@/lib/utils'
+import { computeStatus, formatDateRange, getDayCount, formatTime, ACTIVITY_LABELS } from '@/lib/utils'
 import { getSession } from '@/lib/auth'
 import type { ActivityType, Whereabout } from '@/lib/types'
 
@@ -139,7 +139,7 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
                   <th>Activity</th>
                   <th>Location</th>
                   <th>Dates</th>
-                  <th>Duration</th>
+                  <th>Timeframe</th>
                   <th>Status</th>
                   <th></th>
                 </tr>
@@ -174,7 +174,11 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
                         {formatDateRange(w.start_date, w.end_date)}
                       </td>
                       <td style={{ fontSize: 13, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>
-                        {days === 1 ? (w.is_all_day ? 'All day' : '1 day') : `${days} days`}
+                        {w.is_all_day
+                          ? `${days} day${days === 1 ? '' : 's'}`
+                          : (w.start_time && w.end_time)
+                            ? `${formatTime(w.start_time)} – ${formatTime(w.end_time)}`
+                            : `${days} day${days === 1 ? '' : 's'}`}
                       </td>
                       <td><StatusPill status={status} /></td>
                       <td>
