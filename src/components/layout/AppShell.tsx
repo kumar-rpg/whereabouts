@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   function logout() {
     clearSession()
-    router.replace('/login')
+    router.replace(`/login?redirect=${encodeURIComponent(pathname)}`)
   }
 
   // Login page — no chrome
