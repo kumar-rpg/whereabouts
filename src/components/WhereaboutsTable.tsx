@@ -122,7 +122,7 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Staff</th>
+                  {!staffId && <th>Staff</th>}
                   <th>Activity</th>
                   <th>Location</th>
                   <th>Dates</th>
@@ -137,18 +137,20 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
                   const days = getDayCount(w.start_date, w.end_date)
                   return (
                     <tr key={w.id}>
-                      <td>
-                        <div style={{ fontWeight: 500, color: 'var(--text-1)', fontSize: 14 }}>
-                          {w.staff?.staff_name ?? w.staff_id}
-                        </div>
-                        <div style={{
-                          fontSize: 11.5, color: 'var(--text-3)',
-                          fontFamily: 'var(--font-jetbrains, monospace)',
-                          fontVariantNumeric: 'tabular-nums',
-                        }}>
-                          {w.staff_id}
-                        </div>
-                      </td>
+                      {!staffId && (
+                        <td>
+                          <div style={{ fontWeight: 500, color: 'var(--text-1)', fontSize: 14 }}>
+                            {w.staff?.staff_name ?? w.staff_id}
+                          </div>
+                          <div style={{
+                            fontSize: 11.5, color: 'var(--text-3)',
+                            fontFamily: 'var(--font-jetbrains, monospace)',
+                            fontVariantNumeric: 'tabular-nums',
+                          }}>
+                            {w.staff_id}
+                          </div>
+                        </td>
+                      )}
                       <td><ActivityBadge type={w.activity_type} size="sm" /></td>
                       <td style={{ color: 'var(--text-1)', maxWidth: 180 }}>
                         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
