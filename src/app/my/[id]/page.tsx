@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, use, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
@@ -9,6 +9,7 @@ import { ActivityBadge } from '@/components/ui/ActivityBadge'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { ActivityForm } from '@/components/ActivityForm'
+import { Toast } from '@/components/ui/Toast'
 import { computeStatus, formatDateRange, formatTime, getDayCount } from '@/lib/utils'
 import type { Whereabout } from '@/lib/types'
 
@@ -24,16 +25,25 @@ async function fetchActivity(id: string): Promise<Whereabout | null> {
 export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) {
   const { id } = use(params)
   const router = useRouter()
-  const { data, isLoading, error } = useSWR(`my-activity-${id}`, () => fetchActivity(id))
+  const { data, isLoading, error, mutate } = useSWR(`my-activity-${id}`, () => fetchActivity(id))
   const [editing, setEditing] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const dismissToast = useCallback(() => setToast(null), [])
 
   async function handleDelete() {
     setDeleting(true)
     await db.from('whereabouts').delete().eq('id', id)
-    router.push('/my')
-    router.refresh()
+    setConfirming(false)
+    setToast({ message: 'Activity deleted', type: 'success' })
+    setTimeout(() => { router.push('/my'); router.refresh() }, 1500)
+  }
+
+  function handleSaveSuccess() {
+    setEditing(false)
+    mutate()
+    setToast({ message: 'Activity updated successfully', type: 'success' })
   }
 
   if (isLoading) return (
@@ -75,7 +85,7 @@ export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) 
             <h1 className="page-title">Edit Activity</h1>
             <button onClick={() => setEditing(false)} className="btn btn-ghost" style={{ fontSize: 13 }}>Cancel</button>
           </div>
-          <ActivityForm initial={data} returnPath={`/my/${id}`} />
+          <ActivityForm initial={data} returnPath={`/my/${id}`} onSuccess={handleSaveSuccess} />
         </div>
       ) : (
         <>
@@ -163,6 +173,13 @@ export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) 
         onConfirm={handleDelete}
         onCancel={() => setConfirming(false)}
         loading={deleting}
+      />
+
+      <Toast
+        message={toast?.message ?? ''}
+        type={toast?.type}
+        visible={!!toast}
+        onDismiss={dismissToast}
       />
     </div>
   )

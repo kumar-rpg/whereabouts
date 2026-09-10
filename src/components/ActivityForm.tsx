@@ -35,9 +35,10 @@ interface ActivityFormProps {
   initial?: Whereabout
   preselectedStaffId?: string
   returnPath?: string
+  onSuccess?: () => void
 }
 
-export function ActivityForm({ initial, preselectedStaffId, returnPath }: ActivityFormProps) {
+export function ActivityForm({ initial, preselectedStaffId, returnPath, onSuccess }: ActivityFormProps) {
   const router = useRouter()
   const isEdit = !!initial
   const hasPreselected = !!preselectedStaffId
@@ -108,7 +109,7 @@ export function ActivityForm({ initial, preselectedStaffId, returnPath }: Activi
       if (isEdit && initial) {
         const { error } = await db.from('whereabouts').update(payload).eq('id', initial.id)
         if (error) throw error
-        router.push(returnPath ?? `/log/${initial.id}`)
+        if (onSuccess) { onSuccess() } else { router.push(returnPath ?? `/log/${initial.id}`) }
       } else {
         const { data, error } = await db.from('whereabouts').insert(payload).select().single()
         if (error) throw error
