@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, use, useCallback } from 'react'
+import { useState, use, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import { db } from '@/lib/supabase'
+import { getSession } from '@/lib/auth'
 import { ActivityBadge } from '@/components/ui/ActivityBadge'
 import { StatusPill } from '@/components/ui/StatusPill'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -31,6 +32,12 @@ export default function ActivityDetailPage({ params }: PageProps<'/log/[id]'>) {
   const [deleting, setDeleting] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    const s = getSession()
+    if (s) setIsAdmin(s.role === 'Admin')
+  }, [])
 
   async function handleDelete() {
     setDeleting(true)
@@ -103,7 +110,9 @@ export default function ActivityDetailPage({ params }: PageProps<'/log/[id]'>) {
             </div>
             <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
               <button onClick={() => setEditing(true)} className="btn btn-outline">Edit</button>
-              <button onClick={() => setConfirming(true)} className="btn btn-danger">Delete</button>
+              {isAdmin && (
+                <button onClick={() => setConfirming(true)} className="btn btn-danger">Delete</button>
+              )}
             </div>
           </div>
 

@@ -2,12 +2,10 @@
 
 import { useState, use, useCallback } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import { db } from '@/lib/supabase'
 import { ActivityBadge } from '@/components/ui/ActivityBadge'
 import { StatusPill } from '@/components/ui/StatusPill'
-import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { ActivityForm } from '@/components/ActivityForm'
 import { Toast } from '@/components/ui/Toast'
 import { computeStatus, formatDateRange, formatTime, getDayCount } from '@/lib/utils'
@@ -24,21 +22,10 @@ async function fetchActivity(id: string): Promise<Whereabout | null> {
 
 export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) {
   const { id } = use(params)
-  const router = useRouter()
   const { data, isLoading, error, mutate } = useSWR(`my-activity-${id}`, () => fetchActivity(id))
   const [editing, setEditing] = useState(false)
-  const [confirming, setConfirming] = useState(false)
-  const [deleting, setDeleting] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
-
-  async function handleDelete() {
-    setDeleting(true)
-    await db.from('whereabouts').delete().eq('id', id)
-    setConfirming(false)
-    setToast({ message: 'Activity deleted', type: 'success' })
-    setTimeout(() => { router.push('/my'); router.refresh() }, 1500)
-  }
 
   function handleSaveSuccess() {
     setEditing(false)
@@ -63,6 +50,7 @@ export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) 
   )
 
   const status = computeStatus(data.start_date, data.end_date)
+  const canEdit = status === 'ongoing'
   const days = getDayCount(data.start_date, data.end_date)
   const staff = data.staff
 
@@ -101,10 +89,11 @@ export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) 
                 <p className="page-subtitle" style={{ marginTop: 6 }}>{data.description}</p>
               )}
             </div>
-            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-              <button onClick={() => setEditing(true)} className="btn btn-outline">Edit</button>
-              <button onClick={() => setConfirming(true)} className="btn btn-danger">Delete</button>
-            </div>
+            {canEdit && (
+              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <button onClick={() => setEditing(true)} className="btn btn-outline">Edit</button>
+              </div>
+            )}
           </div>
 
           {/* Detail card */}
@@ -165,15 +154,6 @@ export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) 
           </div>
         </>
       )}
-
-      <ConfirmDialog
-        open={confirming}
-        title="Delete this activity?"
-        message={`This will permanently remove the activity at ${data.location}. This cannot be undone.`}
-        onConfirm={handleDelete}
-        onCancel={() => setConfirming(false)}
-        loading={deleting}
-      />
 
       <Toast
         message={toast?.message ?? ''}
