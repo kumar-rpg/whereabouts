@@ -37,7 +37,7 @@ export default function MyActivitiesPage() {
         </Link>
       </div>
 
-      <WhereaboutsTable staffId={session.staff_id} />
+      <WhereaboutsTable staffId={session.staff_id} detailBasePath="/my" />
     </div>
   )
 }

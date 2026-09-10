@@ -30,9 +30,10 @@ async function fetchWhereabouts(): Promise<Whereabout[]> {
 
 interface WhereaboutsTableProps {
   staffId?: string
+  detailBasePath?: string
 }
 
-export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
+export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: WhereaboutsTableProps) {
   const { data, isLoading, error } = useSWR('whereabouts-table', fetchWhereabouts)
   const [search, setSearch] = useState('')
   const [sessionStaffId, setSessionStaffId] = useState<string | null>(null)
@@ -183,7 +184,7 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
                       <td><StatusPill status={status} /></td>
                       <td>
                         <Link
-                          href={`/log/${w.id}`}
+                          href={`${detailBasePath}/${w.id}`}
                           style={{
                             fontSize: 13, color: 'var(--accent-text)',
                             textDecoration: 'none', fontWeight: 500,

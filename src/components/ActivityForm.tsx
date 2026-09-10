@@ -34,9 +34,10 @@ type FormValues = z.infer<typeof schema>
 interface ActivityFormProps {
   initial?: Whereabout
   preselectedStaffId?: string
+  returnPath?: string
 }
 
-export function ActivityForm({ initial, preselectedStaffId }: ActivityFormProps) {
+export function ActivityForm({ initial, preselectedStaffId, returnPath }: ActivityFormProps) {
   const router = useRouter()
   const isEdit = !!initial
   const hasPreselected = !!preselectedStaffId
@@ -107,7 +108,7 @@ export function ActivityForm({ initial, preselectedStaffId }: ActivityFormProps)
       if (isEdit && initial) {
         const { error } = await db.from('whereabouts').update(payload).eq('id', initial.id)
         if (error) throw error
-        router.push(`/log/${initial.id}`)
+        router.push(returnPath ?? `/log/${initial.id}`)
       } else {
         const { data, error } = await db.from('whereabouts').insert(payload).select().single()
         if (error) throw error
