@@ -50,7 +50,7 @@ export default function MyActivityDetailPage({ params }: PageProps<'/my/[id]'>) 
   )
 
   const status = computeStatus(data.start_date, data.end_date)
-  const canEdit = status === 'ongoing'
+  const canEdit = status === 'ongoing' || status === 'upcoming'
   const days = getDayCount(data.start_date, data.end_date)
   const staff = data.staff
 
