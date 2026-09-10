@@ -22,11 +22,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const s = getSession()
     if (!s) {
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`)
+    } else if (s.role !== 'Admin' && !pathname.startsWith('/my')) {
+      router.replace('/my')
     } else {
       setSession(s)
       setReady(true)
     }
-  }, [isLogin, router])
+  }, [isLogin, pathname, router])
 
   function logout() {
     clearSession()
