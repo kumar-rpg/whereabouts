@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { BottomNav } from './BottomNav'
+import { StaffBottomNav } from './StaffBottomNav'
 import { getSession, clearSession, type AuthSession } from '@/lib/auth'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -11,6 +12,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null)
   const [ready, setReady] = useState(false)
   const isLogin = pathname === '/login'
+  const isMyPortal = pathname.startsWith('/my')
 
   useEffect(() => {
     if (isLogin) {
@@ -87,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      <BottomNav />
+      {isMyPortal ? <StaffBottomNav /> : <BottomNav />}
     </div>
   )
 }

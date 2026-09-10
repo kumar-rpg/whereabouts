@@ -33,13 +33,15 @@ type FormValues = z.infer<typeof schema>
 
 interface ActivityFormProps {
   initial?: Whereabout
+  preselectedStaffId?: string
 }
 
-export function ActivityForm({ initial }: ActivityFormProps) {
+export function ActivityForm({ initial, preselectedStaffId }: ActivityFormProps) {
   const router = useRouter()
   const isEdit = !!initial
+  const hasPreselected = !!preselectedStaffId
 
-  const [step, setStep] = useState(isEdit ? 3 : 1)
+  const [step, setStep] = useState(isEdit ? 3 : hasPreselected ? 2 : 1)
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(
     initial?.staff ?? null
   )
@@ -82,7 +84,7 @@ export function ActivityForm({ initial }: ActivityFormProps) {
 
   async function onSubmit(values: FormValues) {
     if (!activityType) return
-    const staffId = selectedStaff?.staff_id ?? initial?.staff_id
+    const staffId = selectedStaff?.staff_id ?? initial?.staff_id ?? preselectedStaffId
     if (!staffId) return
 
     setSubmitting(true)
@@ -124,7 +126,7 @@ export function ActivityForm({ initial }: ActivityFormProps) {
       {/* Progress indicator */}
       {!isEdit && (
         <div style={{ display: 'flex', gap: 6, marginBottom: 28 }}>
-          {[1, 2, 3].map(n => (
+          {(hasPreselected ? [2, 3] : [1, 2, 3]).map(n => (
             <div key={n} style={{
               height: 4, flex: 1, borderRadius: 99,
               background: step >= n ? 'var(--accent)' : 'var(--border)',
@@ -159,9 +161,11 @@ export function ActivityForm({ initial }: ActivityFormProps) {
               fontFamily: 'var(--font-barlow, sans-serif)',
               fontSize: 20, fontWeight: 700, color: 'var(--text-1)', marginBottom: 4,
             }}>What type of activity?</h2>
-            <p style={{ fontSize: 14, color: 'var(--text-2)' }}>
-              For {selectedStaff?.staff_name} ({selectedStaff?.staff_id})
-            </p>
+            {selectedStaff && (
+              <p style={{ fontSize: 14, color: 'var(--text-2)' }}>
+                For {selectedStaff.staff_name} ({selectedStaff.staff_id})
+              </p>
+            )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {ACTIVITY_TYPES.map(type => (
@@ -189,7 +193,9 @@ export function ActivityForm({ initial }: ActivityFormProps) {
           </div>
           {activityError && <p style={{ fontSize: 12, color: 'var(--danger)' }}>{activityError}</p>}
           <div style={{ display: 'flex', gap: 10 }}>
-            <button type="button" className="btn btn-outline" onClick={() => setStep(1)}>← Back</button>
+            {!hasPreselected && (
+              <button type="button" className="btn btn-outline" onClick={() => setStep(1)}>← Back</button>
+            )}
             <button type="button" className="btn btn-primary" onClick={goStep3}>Continue →</button>
           </div>
         </div>
