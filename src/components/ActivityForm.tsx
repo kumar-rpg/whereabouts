@@ -18,7 +18,7 @@ const ACTIVITY_TYPES: ActivityType[] = [
 
 const schema = z.object({
   location: z.string().min(2, 'Location is required'),
-  description: z.string().optional(),
+  description: z.string().min(1, 'Purpose is required'),
   is_all_day: z.boolean(),
   start_date: z.string().min(1, 'Start date is required'),
   end_date: z.string().min(1, 'End date is required'),
@@ -234,13 +234,14 @@ export function ActivityForm({ initial, preselectedStaffId, returnPath, onSucces
 
             {/* Description */}
             <div>
-              <label className="label" htmlFor="description">Purpose</label>
+              <label className="label" htmlFor="description">Purpose *</label>
               <input
                 id="description"
                 className="input"
-                placeholder="Purpose (optional)"
+                placeholder="Purpose of visit / Training or Certification Name / Activity"
                 {...register('description')}
               />
+              {errors.description && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>{errors.description.message}</p>}
             </div>
 
             {/* Date range */}
