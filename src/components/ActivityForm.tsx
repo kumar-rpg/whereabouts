@@ -233,11 +233,11 @@ export function ActivityForm({ initial, preselectedStaffId, returnPath, onSucces
 
             {/* Description */}
             <div>
-              <label className="label" htmlFor="description">Description</label>
+              <label className="label" htmlFor="description">Purpose</label>
               <input
                 id="description"
                 className="input"
-                placeholder="Brief purpose (optional)"
+                placeholder="Purpose (optional)"
                 {...register('description')}
               />
             </div>
