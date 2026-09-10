@@ -4,6 +4,8 @@ export type ActivityType =
   | 'vendor_meeting'
   | 'customer_meeting'
   | 'vendor_event'
+  | 'customer_support'
+  | 'other'
 
 export type WhereaboutStatus = 'upcoming' | 'ongoing' | 'completed'
 

@@ -18,6 +18,8 @@ export const ACTIVITY_LABELS: Record<ActivityType, string> = {
   vendor_meeting: 'Vendor Meeting',
   customer_meeting: 'Customer Meeting',
   vendor_event: 'Vendor Event',
+  customer_support: 'Customer Support',
+  other: 'Other',
 }
 
 export const ACTIVITY_COLORS: Record<ActivityType, { bg: string; text: string; dot: string }> = {
@@ -26,6 +28,8 @@ export const ACTIVITY_COLORS: Record<ActivityType, { bg: string; text: string; d
   vendor_meeting:   { bg: 'var(--c-vendor-bg)', text: 'var(--c-vendor)', dot: 'var(--c-vendor)' },
   customer_meeting: { bg: 'var(--c-customer-bg)', text: 'var(--c-customer)', dot: 'var(--c-customer)' },
   vendor_event:     { bg: 'var(--c-event-bg)',  text: 'var(--c-event)',  dot: 'var(--c-event)' },
+  customer_support: { bg: 'var(--c-support-bg)', text: 'var(--c-support)', dot: 'var(--c-support)' },
+  other:            { bg: 'var(--c-other-bg)',   text: 'var(--c-other)',   dot: 'var(--c-other)' },
 }
 
 export function formatDateRange(startDate: string, endDate: string): string {

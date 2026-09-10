@@ -13,6 +13,7 @@ import type { Staff, ActivityType, Whereabout } from '@/lib/types'
 
 const ACTIVITY_TYPES: ActivityType[] = [
   'offsite_training', 'certification', 'vendor_meeting', 'customer_meeting', 'vendor_event',
+  'customer_support', 'other',
 ]
 
 const schema = z.object({

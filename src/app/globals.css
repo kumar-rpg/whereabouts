@@ -24,6 +24,8 @@
   --c-vendor:       #B45309; --c-vendor-bg:   #FEF0D8;
   --c-customer:     #0E7DA6; --c-customer-bg: #D9F1FA;
   --c-event:        #BE185D; --c-event-bg:    #FCE3EF;
+  --c-support:      #0F766E; --c-support-bg:  #CCFBF1;
+  --c-other:        #4B5563; --c-other-bg:    #F3F4F6;
 
   /* Status tokens */
   --s-upcoming:     #6B7280; --s-upcoming-bg:  #F3F4F6;
@@ -53,6 +55,8 @@
     --c-vendor:       #FCD34D; --c-vendor-bg:   #3D2200;
     --c-customer:     #38BDF8; --c-customer-bg: #0A2840;
     --c-event:        #F472B6; --c-event-bg:    #420A28;
+    --c-support:      #2DD4BF; --c-support-bg:  #042F2E;
+    --c-other:        #9CA3AF; --c-other-bg:    #1F2937;
     --s-upcoming:     #9CA3AF; --s-upcoming-bg:  #1F2937;
     --s-ongoing:      #34D399; --s-ongoing-bg:   #064E3B;
     --s-completed:    #6B7280; --s-completed-bg: #111827;

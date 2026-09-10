@@ -17,6 +17,8 @@ const ACTIVITY_TYPES: { value: ActivityType | ''; label: string }[] = [
   { value: 'vendor_meeting', label: 'Vendor Meeting' },
   { value: 'customer_meeting', label: 'Customer Meeting' },
   { value: 'vendor_event', label: 'Vendor Event' },
+  { value: 'customer_support', label: 'Customer Support' },
+  { value: 'other', label: 'Other' },
 ]
 
 async function fetchWhereabouts(): Promise<Whereabout[]> {
