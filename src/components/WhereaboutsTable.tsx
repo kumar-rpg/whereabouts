@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
 import { db } from '@/lib/supabase'
 import { ActivityBadge } from './ui/ActivityBadge'
 import { StatusPill } from './ui/StatusPill'
 import { computeStatus, formatDateRange, getDayCount, ACTIVITY_LABELS } from '@/lib/utils'
+import { getSession } from '@/lib/auth'
 import type { ActivityType, Whereabout } from '@/lib/types'
 
 const ACTIVITY_TYPES: { value: ActivityType | ''; label: string }[] = [
@@ -34,13 +35,25 @@ interface WhereaboutsTableProps {
 export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
   const { data, isLoading, error } = useSWR('whereabouts-table', fetchWhereabouts)
   const [search, setSearch] = useState('')
+  const [sessionStaffId, setSessionStaffId] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(true)
+
+  useEffect(() => {
+    const s = getSession()
+    if (s) {
+      setIsAdmin(s.role === 'Admin')
+      setSessionStaffId(s.staff_id)
+    }
+  }, [])
   const [typeFilter, setTypeFilter] = useState<ActivityType | ''>('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'upcoming' | 'ongoing' | 'completed'>('all')
+
+  const effectiveStaffId = staffId ?? (!isAdmin && sessionStaffId ? sessionStaffId : undefined)
 
   const filtered = useMemo(() => {
     if (!data) return []
     return data
-      .filter(w => !staffId || w.staff_id === staffId)
+      .filter(w => !effectiveStaffId || w.staff_id === effectiveStaffId)
       .filter(w => {
         if (!search) return true
         const q = search.toLowerCase()
@@ -55,7 +68,7 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
         if (statusFilter === 'all') return true
         return computeStatus(w.start_date, w.end_date) === statusFilter
       })
-  }, [data, search, typeFilter, statusFilter, staffId])
+  }, [data, search, typeFilter, statusFilter, effectiveStaffId])
 
   if (isLoading) return (
     <div className="card">
@@ -76,7 +89,7 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
   return (
     <div>
       {/* Filters */}
-      {!staffId && (
+      {!effectiveStaffId && (
         <div className="filter-bar">
           <input
             className="input"
@@ -122,7 +135,7 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
             <table className="data-table">
               <thead>
                 <tr>
-                  {!staffId && <th>Staff</th>}
+                  {!effectiveStaffId && <th>Staff</th>}
                   <th>Activity</th>
                   <th>Location</th>
                   <th>Dates</th>
@@ -137,7 +150,7 @@ export function WhereaboutsTable({ staffId }: WhereaboutsTableProps) {
                   const days = getDayCount(w.start_date, w.end_date)
                   return (
                     <tr key={w.id}>
-                      {!staffId && (
+                      {!effectiveStaffId && (
                         <td>
                           <div style={{ fontWeight: 500, color: 'var(--text-1)', fontSize: 14 }}>
                             {w.staff?.staff_name ?? w.staff_id}

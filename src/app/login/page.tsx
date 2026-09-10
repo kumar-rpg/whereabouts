@@ -36,13 +36,13 @@ function LoginForm() {
 
     const { data } = await db
       .from('staff')
-      .select('staff_id, staff_name, access_id')
+      .select('staff_id, staff_name, access_id, role')
       .eq('access_id', pin)
       .eq('is_active', true)
       .maybeSingle()
 
     if (data) {
-      setSession({ staff_id: data.staff_id, staff_name: data.staff_name, access_id: data.access_id })
+      setSession({ staff_id: data.staff_id, staff_name: data.staff_name, access_id: data.access_id, role: data.role ?? 'User' })
       router.replace(redirectTo)
     } else {
       setError('Incorrect PIN. Please try again.')

@@ -5,6 +5,7 @@ export interface AuthSession {
   staff_id: string
   staff_name: string
   access_id: string
+  role: 'Admin' | 'User'
   expires_at: number
 }
 
@@ -23,7 +24,7 @@ export function getSession(): AuthSession | null {
   }
 }
 
-export function setSession(staff: Pick<AuthSession, 'staff_id' | 'staff_name' | 'access_id'>) {
+export function setSession(staff: Pick<AuthSession, 'staff_id' | 'staff_name' | 'access_id' | 'role'>) {
   const session: AuthSession = { ...staff, expires_at: Date.now() + SESSION_TTL }
   try {
     localStorage.setItem(SESSION_KEY, JSON.stringify(session))
