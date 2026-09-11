@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
 import { db } from '@/lib/supabase'
 import { ActivityBadge } from './ui/ActivityBadge'
 import { StatusPill } from './ui/StatusPill'
+import { ConfirmDialog } from './ui/ConfirmDialog'
 import { computeStatus, formatDateRange, getDayCount, formatTime, ACTIVITY_LABELS } from '@/lib/utils'
 import { getSession } from '@/lib/auth'
 import type { ActivityType, Whereabout } from '@/lib/types'
@@ -36,7 +37,7 @@ interface WhereaboutsTableProps {
 }
 
 export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: WhereaboutsTableProps) {
-  const { data, isLoading, error } = useSWR('whereabouts-table', fetchWhereabouts)
+  const { data, isLoading, error, mutate } = useSWR('whereabouts-table', fetchWhereabouts)
   const [search, setSearch] = useState('')
   const [sessionStaffId, setSessionStaffId] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(true)
@@ -50,6 +51,9 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
   }, [])
   const [typeFilter, setTypeFilter] = useState<ActivityType | ''>('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'upcoming' | 'ongoing' | 'completed'>('all')
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [confirmingBulk, setConfirmingBulk] = useState(false)
+  const [bulkDeleting, setBulkDeleting] = useState(false)
 
   const effectiveStaffId = staffId ?? (!isAdmin && sessionStaffId ? sessionStaffId : undefined)
 
@@ -72,6 +76,29 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
         return computeStatus(w.start_date, w.end_date) === statusFilter
       })
   }, [data, search, typeFilter, statusFilter, effectiveStaffId])
+
+  const allSelected = filtered.length > 0 && filtered.every(w => selected.has(w.id))
+
+  const toggleAll = useCallback(() => {
+    setSelected(prev => allSelected ? new Set() : new Set(filtered.map(w => w.id)))
+  }, [allSelected, filtered])
+
+  const toggleOne = useCallback((id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }, [])
+
+  async function handleBulkDelete() {
+    setBulkDeleting(true)
+    await db.from('whereabouts').delete().in('id', [...selected])
+    await mutate()
+    setSelected(new Set())
+    setConfirmingBulk(false)
+    setBulkDeleting(false)
+  }
 
   if (isLoading) return (
     <div className="card">
@@ -122,6 +149,33 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
         </div>
       )}
 
+      {isAdmin && selected.size > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          marginBottom: 10, padding: '10px 16px',
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          borderRadius: 10,
+        }}>
+          <span style={{ fontSize: 13, color: 'var(--text-2)', fontWeight: 500 }}>
+            {selected.size} {selected.size === 1 ? 'entry' : 'entries'} selected
+          </span>
+          <button
+            onClick={() => setConfirmingBulk(true)}
+            className="btn btn-danger"
+            style={{ fontSize: 13, padding: '6px 14px' }}
+          >
+            Delete selected
+          </button>
+          <button
+            onClick={() => setSelected(new Set())}
+            className="btn btn-ghost"
+            style={{ fontSize: 13, padding: '6px 14px' }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
       <div className="card" style={{ overflow: 'hidden' }}>
         {filtered.length === 0 ? (
           <div className="empty-state">
@@ -138,6 +192,16 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
             <table className="data-table">
               <thead>
                 <tr>
+                  {isAdmin && (
+                    <th style={{ width: 40, paddingRight: 0 }}>
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={toggleAll}
+                        style={{ cursor: 'pointer', accentColor: 'var(--accent)', width: 15, height: 15 }}
+                      />
+                    </th>
+                  )}
                   {!effectiveStaffId && <th>Staff</th>}
                   <th>Activity</th>
                   <th>Location</th>
@@ -152,7 +216,17 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
                   const status = computeStatus(w.start_date, w.end_date)
                   const days = getDayCount(w.start_date, w.end_date)
                   return (
-                    <tr key={w.id}>
+                    <tr key={w.id} style={{ background: selected.has(w.id) ? 'var(--accent-bg)' : undefined }}>
+                      {isAdmin && (
+                        <td style={{ width: 40, paddingRight: 0 }}>
+                          <input
+                            type="checkbox"
+                            checked={selected.has(w.id)}
+                            onChange={() => toggleOne(w.id)}
+                            style={{ cursor: 'pointer', accentColor: 'var(--accent)', width: 15, height: 15 }}
+                          />
+                        </td>
+                      )}
                       {!effectiveStaffId && (
                         <td>
                           <div style={{ fontWeight: 500, color: 'var(--text-1)', fontSize: 14 }}>
@@ -210,6 +284,15 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
           {filtered.length} {filtered.length === 1 ? 'record' : 'records'}
         </p>
       )}
+
+      <ConfirmDialog
+        open={confirmingBulk}
+        title={`Delete ${selected.size} ${selected.size === 1 ? 'entry' : 'entries'}?`}
+        message="This will permanently remove the selected activity entries. This cannot be undone."
+        onConfirm={handleBulkDelete}
+        onCancel={() => setConfirmingBulk(false)}
+        loading={bulkDeleting}
+      />
     </div>
   )
 }
