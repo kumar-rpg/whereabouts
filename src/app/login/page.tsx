@@ -181,6 +181,26 @@ function LoginForm() {
         </div>
       )}
 
+      <div style={{
+        position: 'fixed',
+        bottom: 28,
+        left: 0,
+        right: 0,
+        textAlign: 'center',
+        pointerEvents: 'none',
+      }}>
+        <span style={{
+          fontFamily: 'var(--font-barlow, sans-serif)',
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: 'var(--text-3)',
+        }}>
+          Cortex Robotics
+        </span>
+      </div>
+
       <style>{`
         input[type="password"]:focus {
           border-color: var(--accent) !important;
