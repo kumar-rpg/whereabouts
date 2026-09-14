@@ -69,7 +69,7 @@ export default function ActivityDetailPage({ params }: PageProps<'/log/[id]'>) {
     </div>
   )
 
-  const status = computeStatus(data.start_date, data.end_date)
+  const status = computeStatus(data.start_date, data.end_date, data.end_time)
   const days = getDayCount(data.start_date, data.end_date)
   const staff = data.staff
 

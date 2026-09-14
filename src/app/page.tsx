@@ -25,7 +25,7 @@ export default function DashboardPage() {
   const weekEnd = format(addDays(new Date(), 7), 'yyyy-MM-dd')
 
   const outToday = useMemo(
-    () => (data ?? []).filter(w => computeStatus(w.start_date, w.end_date) === 'ongoing'),
+    () => (data ?? []).filter(w => computeStatus(w.start_date, w.end_date, w.end_time) === 'ongoing'),
     [data]
   )
 

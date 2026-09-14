@@ -1,13 +1,19 @@
 import { format, parseISO, isAfter, isBefore } from 'date-fns'
 import type { ActivityType, WhereaboutStatus } from './types'
 
-export function computeStatus(startDate: string, endDate: string): WhereaboutStatus {
-  const today = new Date()
+export function computeStatus(startDate: string, endDate: string, endTime?: string | null): WhereaboutStatus {
+  const now = new Date()
+  const today = new Date(now)
   today.setHours(0, 0, 0, 0)
   const start = parseISO(startDate)
   const end = parseISO(endDate)
-  end.setHours(23, 59, 59, 999)
-  if (isBefore(end, today)) return 'completed'
+  if (endTime) {
+    const [h, m] = endTime.split(':').map(Number)
+    end.setHours(h, m, 0, 0)
+  } else {
+    end.setHours(23, 59, 59, 999)
+  }
+  if (isBefore(end, now)) return 'completed'
   if (isAfter(start, today)) return 'upcoming'
   return 'ongoing'
 }

@@ -73,7 +73,7 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
       .filter(w => !typeFilter || w.activity_type === typeFilter)
       .filter(w => {
         if (statusFilter === 'all') return true
-        return computeStatus(w.start_date, w.end_date) === statusFilter
+        return computeStatus(w.start_date, w.end_date, w.end_time) === statusFilter
       })
   }, [data, search, typeFilter, statusFilter, effectiveStaffId])
 
@@ -214,7 +214,7 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
               </thead>
               <tbody>
                 {filtered.map(w => {
-                  const status = computeStatus(w.start_date, w.end_date)
+                  const status = computeStatus(w.start_date, w.end_date, w.end_time)
                   const days = getDayCount(w.start_date, w.end_date)
                   return (
                     <tr key={w.id} style={{ background: selected.has(w.id) ? 'var(--accent-bg)' : undefined }}>
