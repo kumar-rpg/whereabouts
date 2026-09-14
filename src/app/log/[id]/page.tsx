@@ -11,7 +11,7 @@ import { StatusPill } from '@/components/ui/StatusPill'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { ActivityForm } from '@/components/ActivityForm'
 import { Toast } from '@/components/ui/Toast'
-import { computeStatus, formatDateRange, formatTime, getDayCount } from '@/lib/utils'
+import { computeStatus, formatDateRange, formatTime, getDayCount, getHourDuration } from '@/lib/utils'
 import type { Whereabout } from '@/lib/types'
 
 async function fetchActivity(id: string): Promise<Whereabout | null> {
@@ -156,7 +156,11 @@ export default function ActivityDetailPage({ params }: PageProps<'/log/[id]'>) {
               gap: 0,
             }}>
               <Detail label="Date(s)" value={formatDateRange(data.start_date, data.end_date)} />
-              <Detail label="Duration" value={days === 1 ? (data.is_all_day ? 'All day' : '1 day') : `${days} days`} />
+              <Detail label="Duration" value={
+                !data.is_all_day && data.start_time && data.end_time
+                  ? getHourDuration(data.start_time, data.end_time)
+                  : `${days} day${days === 1 ? '' : 's'}`
+              } />
               {!data.is_all_day && data.start_time && (
                 <Detail
                   label="Time"

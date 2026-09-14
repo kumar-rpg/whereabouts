@@ -59,6 +59,15 @@ export function formatTime(t: string | null): string {
   return `${h12}:${m}${ampm}`
 }
 
+export function getHourDuration(startTime: string, endTime: string): string {
+  const [sh, sm] = startTime.split(':').map(Number)
+  const [eh, em] = endTime.split(':').map(Number)
+  const minutes = (eh * 60 + em) - (sh * 60 + sm)
+  const hours = minutes / 60
+  const display = hours % 1 === 0 ? String(hours) : hours.toFixed(1)
+  return `${display} ${hours === 1 ? 'hour' : 'hours'}`
+}
+
 export function todayISO(): string {
   return new Date().toISOString().split('T')[0]
 }
