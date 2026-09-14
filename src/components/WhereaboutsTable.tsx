@@ -208,6 +208,7 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
                   <th>Dates</th>
                   <th>Timeframe</th>
                   <th>Status</th>
+                  <th>Company Car</th>
                   <th></th>
                 </tr>
               </thead>
@@ -258,6 +259,27 @@ export function WhereaboutsTable({ staffId, detailBasePath = '/log' }: Whereabou
                             : `${days} day${days === 1 ? '' : 's'}`}
                       </td>
                       <td><StatusPill status={status} /></td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        {(w as any).using_company_car ? (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            fontSize: 12, fontWeight: 500,
+                            color: 'var(--accent-text)',
+                            background: 'var(--accent-bg)',
+                            padding: '3px 10px', borderRadius: 99,
+                          }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                            Yes
+                          </span>
+                        ) : (
+                          <span style={{
+                            fontSize: 12, fontWeight: 500,
+                            color: 'var(--text-3)',
+                          }}>
+                            —
+                          </span>
+                        )}
+                      </td>
                       <td>
                         <Link
                           href={`${detailBasePath}/${w.id}`}
