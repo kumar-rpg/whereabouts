@@ -20,6 +20,7 @@ const schema = z.object({
   location: z.string().min(2, 'Location is required'),
   description: z.string().min(1, 'Purpose is required'),
   is_all_day: z.boolean(),
+  using_company_car: z.boolean(),
   start_date: z.string().min(1, 'Start date is required'),
   end_date: z.string().min(1, 'End date is required'),
   start_time: z.string().optional(),
@@ -62,6 +63,7 @@ export function ActivityForm({ initial, preselectedStaffId, returnPath, onSucces
       location: initial?.location ?? '',
       description: initial?.description ?? '',
       is_all_day: initial?.is_all_day ?? false,
+      using_company_car: (initial as any)?.using_company_car ?? false,
       start_date: initial?.start_date ?? todayISO(),
       end_date: initial?.end_date ?? todayISO(),
       start_time: initial?.start_time ?? '',
@@ -71,6 +73,7 @@ export function ActivityForm({ initial, preselectedStaffId, returnPath, onSucces
   })
 
   const isAllDay = watch('is_all_day')
+  const usingCompanyCar = watch('using_company_car')
   const startDate = watch('start_date')
 
   function goStep2() {
@@ -99,6 +102,7 @@ export function ActivityForm({ initial, preselectedStaffId, returnPath, onSucces
       location: values.location,
       description: values.description || null,
       is_all_day: values.is_all_day,
+      using_company_car: values.using_company_car,
       start_date: values.start_date,
       end_date: values.end_date,
       start_time: values.is_all_day ? null : (values.start_time || null),
@@ -273,14 +277,46 @@ export function ActivityForm({ initial, preselectedStaffId, returnPath, onSucces
               </div>
             </div>
 
-            {/* All-day toggle */}
-            <label style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              cursor: 'pointer', userSelect: 'none',
-            }}>
-              <input type="checkbox" {...register('is_all_day')} style={{ width: 16, height: 16, accentColor: 'var(--accent)' }} />
-              <span style={{ fontSize: 14, color: 'var(--text-2)' }}>All-day event</span>
-            </label>
+            {/* All-day + Company Car row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+              {/* All-day checkbox */}
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                cursor: 'pointer', userSelect: 'none',
+              }}>
+                <input type="checkbox" {...register('is_all_day')} style={{ width: 16, height: 16, accentColor: 'var(--accent)' }} />
+                <span style={{ fontSize: 14, color: 'var(--text-2)' }}>All-day event</span>
+              </label>
+
+              {/* Company Car toggle */}
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                cursor: 'pointer', userSelect: 'none',
+              }}>
+                <span style={{ fontSize: 14, color: 'var(--text-2)' }}>Company car</span>
+                <span style={{ position: 'relative', display: 'inline-block', width: 40, height: 22 }}>
+                  <input
+                    type="checkbox"
+                    {...register('using_company_car')}
+                    style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+                  />
+                  <span style={{
+                    position: 'absolute', inset: 0, borderRadius: 99,
+                    background: usingCompanyCar ? 'var(--accent)' : 'var(--border-strong, #555)',
+                    transition: 'background 0.2s',
+                    cursor: 'pointer',
+                  }} />
+                  <span style={{
+                    position: 'absolute',
+                    top: 3, left: usingCompanyCar ? 21 : 3,
+                    width: 16, height: 16, borderRadius: '50%',
+                    background: '#fff',
+                    transition: 'left 0.2s',
+                    pointerEvents: 'none',
+                  }} />
+                </span>
+              </label>
+            </div>
 
             {/* Times */}
             {!isAllDay && (

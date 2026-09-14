@@ -1,0 +1,2 @@
+ALTER TABLE whereabouts
+  ADD COLUMN using_company_car BOOLEAN NOT NULL DEFAULT FALSE;
