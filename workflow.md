@@ -79,6 +79,14 @@ A Next.js + Supabase web app for **Cortex Robotics** to track staff offsite acti
 
 ---
 
+## Phase 8 — Dark / Light Mode Toggle
+
+- Sun/moon icon button added to the header bar (between staff name and sign-out)
+- Clicking toggles between light and dark theme instantly
+- Choice is saved to `localStorage` and applied via `data-theme` on the `<html>` element, overriding the OS preference across sessions
+
+---
+
 ## Repo & Deployment
 
 - **GitHub:** `kumar-rpg/whereabouts` — all changes committed and pushed to `main`
