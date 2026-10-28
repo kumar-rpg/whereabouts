@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
 import { db } from '@/lib/supabase'
@@ -17,6 +17,37 @@ async function fetchDashboard(): Promise<Whereabout[]> {
     .order('start_date', { ascending: true })
   if (error) throw error
   return data ?? []
+}
+
+// Live clock in Malaysia time (GMT+8), updates every second.
+// Renders nothing until mounted to avoid a server/client mismatch.
+const gmt8Formatter = new Intl.DateTimeFormat('en-MY', {
+  timeZone: 'Asia/Kuala_Lumpur',
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: true,
+})
+
+function LiveClock() {
+  const [now, setNow] = useState<Date | null>(null)
+
+  useEffect(() => {
+    setNow(new Date())
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  if (!now) return null
+
+  return (
+    <span style={{
+      fontSize: 15, fontWeight: 500, color: 'var(--text-2)',
+      fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap',
+    }}>
+      {gmt8Formatter.format(now).toLowerCase()} (GMT+8)
+    </span>
+  )
 }
 
 export default function DashboardPage() {
@@ -41,9 +72,12 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">
-            {format(new Date(), 'EEEE, d MMMM')}
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+            <h1 className="page-title">
+              {format(new Date(), 'EEEE, d MMMM')}
+            </h1>
+            <LiveClock />
+          </div>
           <p className="page-subtitle">
             {isLoading ? 'Loading…' : `${outToday.length} ${outToday.length === 1 ? 'person' : 'people'} currently away`}
           </p>
