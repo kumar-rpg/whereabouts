@@ -117,7 +117,7 @@ function LoginForm() {
           Staff Whereabouts
         </h1>
         <p style={{ fontSize: 14, color: 'var(--text-3)', margin: 0 }}>
-          Enter your 6-digit access PIN
+          Enter your last 6-digit IC No.
         </p>
       </div>
 
